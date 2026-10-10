@@ -1,5 +1,8 @@
+
 import { useState } from "react";
 import axios from "axios";
+
+const API_URL = import.meta.env.VITE_API_URL?.replace(/\/+$/, "");
 
 function Register() {
     const [formData, setFormData] = useState({
@@ -9,6 +12,7 @@ function Register() {
     });
 
     const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         setFormData({
@@ -19,27 +23,35 @@ function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setMessage("");
+
+        if (!API_URL) {
+            setMessage("Server URL is not configured. Please try again later.");
+            return;
+        }
+
+        setLoading(true);
 
         try {
             const response = await axios.post(
-                "http://localhost:5000/api/auth/register",
+                `${API_URL}/api/auth/register`,
                 formData
             );
 
-            setMessage(response.data.message);
+            setMessage(response.data.message || "Registration successful!");
 
             setFormData({
                 name: "",
                 email: "",
                 password: ""
             });
-
         } catch (error) {
-            if (error.response) {
-                setMessage(error.response.data.message);
-            } else {
-                setMessage("Something went wrong");
-            }
+            setMessage(
+                error.response?.data?.message ||
+                "Registration failed. Please try again."
+            );
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -48,50 +60,52 @@ function Register() {
             <h1>Create Account</h1>
 
             <form onSubmit={handleSubmit}>
-
                 <div>
                     <label>Name</label>
-
                     <input
                         type="text"
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
                         placeholder="Enter your name"
+                        autoComplete="name"
+                        required
                     />
                 </div>
 
                 <div>
                     <label>Email</label>
-
                     <input
                         type="email"
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="Enter your email"
+                        autoComplete="email"
+                        required
                     />
                 </div>
 
                 <div>
                     <label>Password</label>
-
                     <input
                         type="password"
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
-                        placeholder="Create a password"
+                        placeholder="Create a strong password"
+                        autoComplete="new-password"
+                        minLength={8}
+                        required
                     />
                 </div>
 
-                <button type="submit">
-                    Register
+                <button type="submit" disabled={loading}>
+                    {loading ? "Creating account..." : "Register"}
                 </button>
-
             </form>
 
-            {message && <p>{message}</p>}
+            {message && <p role="status">{message}</p>}
         </div>
     );
 }
