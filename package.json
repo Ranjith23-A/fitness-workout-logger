@@ -1,0 +1,15 @@
+{
+  "name": "fitness-workout-logger",
+  "version": "1.0.0",
+  "description": "Full-Stack MERN Fitness & Workout Logger",
+  "private": true,
+  "scripts": {
+    "server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client",
+    "test:server": "npm test --prefix server",
+    "build:client": "npm run build --prefix client"
+  },
+  "keywords": ["mern", "fitness", "workout-tracker", "react", "express", "mongodb"],
+  "author": "Antigravity",
+  "license": "MIT"
+}
